@@ -8,4 +8,7 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+  
+  # for react-router 
+  get '*path', to: 'pages#home', via: :all
 end
