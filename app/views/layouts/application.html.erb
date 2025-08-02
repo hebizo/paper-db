@@ -8,6 +8,7 @@
 
     <%= vite_client_tag %>
     <%= vite_react_refresh_tag %>
+    <%= vite_javascript_tag 'entrypoints/application.jsx' %>
 
     <!--
       If using a TypeScript entrypoint file:
@@ -22,8 +23,6 @@
   </head>
 
   <body>
-    <%= yield %>
-
-    <%= vite_javascript_tag 'application.jsx' %>
+    <div id="root"></div>
   </body>
 </html>
