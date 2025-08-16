@@ -32,14 +32,18 @@ function PaperDetailPage() {
   const handleEditClick = () => {
     setEditPaper({
       ...paper,
-      authors: paper.authors ? paper.authors.map(author => author.name) : [],
-      tags: paper.tags ? paper.tags.map(tag => tag.name) : []
+      authors: paper.authors ? paper.authors.map(author => author.name).join(', ') : '',
+      tags: paper.tags ? paper.tags.map(tag => tag.name).join(', ') : ''
     });
     setEditMode(true);
   };
 
   const handleChange = (e) => {
-    setEditPaper({...editPaper, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setEditPaper({
+      ...editPaper,
+      [name]: value
+    });
   };
 
   const handleSave = async () => {
@@ -49,8 +53,8 @@ function PaperDetailPage() {
         url: editPaper.url,
         memo: editPaper.memo,
       },
-      authors: editPaper.authors.split(',').map(name => ({ name: name.trim() })).filter(Boolean),
-      tags: editPaper.tags.split(',').map(name => ({ name: name.trim() })).filter(Boolean),
+      authors: editPaper.authors.split(/[,、]\s*/).map(name => ({ name: name.trim() })).filter(Boolean),
+      tags: editPaper.tags.split(/[,、]\s*/).map(name => ({ name: name.trim() })).filter(Boolean),
     };
 
     try {
