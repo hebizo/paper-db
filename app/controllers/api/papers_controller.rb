@@ -36,7 +36,33 @@ class Api::PapersController < ApplicationController
   end
 
   def update
+    @paper = Paper.find(params[:id])
     
+    if @paper.update(paper_params)
+      # 既存の関連を一旦削除
+      @paper.authors.clear
+      @paper.tags.clear
+
+      # 新しい著者を追加
+      if params[:authors].present?
+        params[:authors].each do |author_param|
+          author = Author.find_or_create_by(name: author_param["name"])
+          @paper.authors << author
+        end
+      end
+
+      # 新しいタグを追加
+      if params[:tags].present?
+        params[:tags].each do |tag_param|
+          tag = Tag.find_or_create_by(name: tag_param["name"])
+          @paper.tags << tag
+        end
+      end
+
+      render json: @paper.as_json(include: { authors: { only: :name }, tags: { only: :name } })
+    else
+      render json: @paper.errors, status: :unprocessable_entity
+    end
   end
 
   def destroy

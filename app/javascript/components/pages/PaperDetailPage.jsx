@@ -6,6 +6,8 @@ function PaperDetailPage() {
   const [paper, setPaper] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editPaper, setEditPaper] = useState(null);
 
   useEffect(() => {
     const fetchPaper = async () => {
@@ -27,10 +29,103 @@ function PaperDetailPage() {
     fetchPaper();
   }, [paperId]); 
 
+  const handleEditClick = () => {
+    setEditPaper({
+      ...paper,
+      authors: paper.authors ? paper.authors.map(author => author.name) : [],
+      tags: paper.tags ? paper.tags.map(tag => tag.name) : []
+    });
+    setEditMode(true);
+  };
+
+  const handleChange = (e) => {
+    setEditPaper({...editPaper, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    const updatedData = {
+      paper: {
+        title: editPaper.title,
+        url: editPaper.url,
+        memo: editPaper.memo,
+      },
+      authors: editPaper.authors.split(',').map(name => ({ name: name.trim() })).filter(Boolean),
+      tags: editPaper.tags.split(',').map(name => ({ name: name.trim() })).filter(Boolean),
+    };
+
+    try {
+      const response = await fetch(`/api/papers/${paperId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) {
+        throw new Error('更新に失敗しました');
+      }
+      const data = await response.json();
+      console.log('data:', data);
+      setPaper(data);
+      setEditMode(false);
+    } catch (err) {
+      console.error('update error:', err);
+      setError(err.message);
+    }
+  };
+
   if (loading) return <div>読み込み中...</div>;
   if (error) return <div style={{ color: 'red' }}>エラー: {error}</div>;
   if (!paper) return <div>データがありません</div>;
 
+  if (editMode) {
+    return (
+      <div>
+        <h2>
+          <input
+            name="title"
+            value={editPaper.title}
+            onChange={handleChange}
+          />
+        </h2>
+        <div>
+          <strong>著者:</strong>
+          <input
+            name="authors"
+            value={editPaper.authors}
+            onChange={handleChange}
+          />
+        </div>
+        <div>
+          <strong>URL:</strong>
+          <input
+            name="url"
+            value={editPaper.url}
+            onChange={handleChange}
+          />
+        </div>
+        <div>
+          <strong>タグ:</strong>
+          <input
+            name="tags"
+            value={editPaper.tags}
+            onChange={handleChange}
+          />
+        </div>
+        <div>
+          <strong>メモ:</strong>
+          <textarea
+            name="memo"
+            value={editPaper.memo}
+            onChange={handleChange}
+          />
+        </div>
+        <button onClick={handleSave}>保存</button>
+        <button onClick={() => setEditMode(false)}>キャンセル</button>
+      </div>
+    );
+  }
   return (
     <div>
       <h2>{paper.title}</h2>
@@ -53,6 +148,7 @@ function PaperDetailPage() {
         <strong>メモ:</strong>
         <div style={{ whiteSpace: 'pre-wrap' }}>{paper.memo || 'なし'}</div>
       </div>
+      <button onClick={handleEditClick}>編集</button>
     </div>
   );
 }
