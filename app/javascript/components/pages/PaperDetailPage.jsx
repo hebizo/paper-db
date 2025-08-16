@@ -110,77 +110,116 @@ function PaperDetailPage() {
 
   if (editMode) {
     return (
-      <div>
-        <h2>
+      <div className='container my-4'>
+        <div className='d-flex justify-content-between align-items-center mb-3'>
           <input
             name="title"
             value={editPaper.title}
             onChange={handleChange}
+            className='form-control form-control-lg w-75'
+            placeholder='論文タイトル'
           />
-        </h2>
-        <div>
-          <strong>著者:</strong>
-          <input
-            name="authors"
-            value={editPaper.authors}
-            onChange={handleChange}
-          />
+          <div>
+            <button onClick={handleSave} className='btn btn-primary mx-1'>保存</button>
+            <button onClick={() => setEditMode(false)} className='btn btn-secondary'>キャンセル</button>
+          </div>
         </div>
-        <div>
-          <strong>URL:</strong>
-          <input
-            name="url"
-            value={editPaper.url}
-            onChange={handleChange}
-          />
+
+        <hr />
+
+        {/* --- 論文のメタデータ編集 --- */}
+        <div className='mb-3'>
+          <div className='mb-3'>
+            <label className='form-label'><strong>著者:</strong></label>
+            <input
+              name="authors"
+              value={editPaper.authors}
+              onChange={handleChange}
+              className='form-control'
+              placeholder='著者名をカンマ区切りで入力'
+            />
+          </div>
+          <div className='mb-3'>
+            <label className='form-label'><strong>URL:</strong></label>
+            <input
+              name="url"
+              value={editPaper.url}
+              onChange={handleChange}
+              className='form-control'
+              placeholder='論文のURL'
+              type="url"
+            />
+          </div>
+          <div className='mb-3'>
+            <label className='form-label'><strong>タグ:</strong></label>
+            <input
+              name="tags"
+              value={editPaper.tags}
+              onChange={handleChange}
+              className='form-control'
+              placeholder='タグをカンマ区切りで入力'
+            />
+          </div>
         </div>
-        <div>
-          <strong>タグ:</strong>
-          <input
-            name="tags"
-            value={editPaper.tags}
-            onChange={handleChange}
-          />
+
+        {/* --- 論文のメモ編集 --- */}
+        <div className='card mt-4'>
+          <div className='card-body'>
+            <h5 className='card-title'>メモ</h5>
+            <textarea
+              name="memo"
+              value={editPaper.memo}
+              onChange={handleChange}
+              className='form-control'
+              rows="5"
+              placeholder='メモを入力'
+            />
+          </div>
         </div>
-        <div>
-          <strong>メモ:</strong>
-          <textarea
-            name="memo"
-            value={editPaper.memo}
-            onChange={handleChange}
-          />
-        </div>
-        <button onClick={handleSave}>保存</button>
-        <button onClick={() => setEditMode(false)}>キャンセル</button>
       </div>
     );
   }
   return (
-    <div>
-      <h2>{paper.title}</h2>
-      <div>
-        <strong>著者:</strong> {paper.authors && paper.authors.length > 0 
+    <div className='container my-4'>
+      <div className='d-flex justify-content-between align-items-center mb-3'>
+        <h2 className='mb-0'>{paper.title}</h2>
+        <div>
+          <button onClick={handleEditClick} className='btn btn-primary'>編集</button>
+          <button onClick={handleDelete} className='btn btn-danger mx-1'>削除</button>
+          <button onClick={() => navigate('/papers')} className='btn btn-secondary mx-2'>一覧へ戻る</button>
+        </div>
+      </div>
+
+      <hr />
+
+      {/* --- 論文のメタデータ --- */}
+      <div className='mb-3'>
+        <p>
+          <strong>著者:</strong> {paper.authors && paper.authors.length > 0 
           ? paper.authors.map(author => author.name).join(', ') 
           : 'なし'}
+        </p>
+        <p>
+          <strong>URL:</strong> {paper.url ? (
+            <a href={paper.url} target="_blank" rel="noopener noreferrer">{paper.url}</a>
+          ) : 'なし'}
+        </p>
+        <div>
+          <strong>タグ:</strong> {paper.tags && paper.tags.length > 0 
+          ? paper.tags.map(tag => (
+            <span key={tag.name} className='badge bg-secondary me-1'>{tag.name}</span>
+          )) : 'なし'}
+        </div>
       </div>
-      <div>
-        <strong>URL:</strong> {paper.url ? (
-          <a href={paper.url} target="_blank" rel="noopener noreferrer">{paper.url}</a>
-        ) : 'なし'}
-      </div>
-      <div>
-        <strong>タグ:</strong> {paper.tags && paper.tags.length > 0 
-          ? paper.tags.map(tag => tag.name).join(', ') 
-          : 'なし'}
-      </div>
-      <div>
-        <strong>メモ:</strong>
-        <div style={{ whiteSpace: 'pre-wrap' }}>{paper.memo || 'なし'}</div>
-      </div>
-      <div style={{ marginTop: '20px' }}>
-        <button onClick={handleEditClick}>編集</button>
-        <button onClick={handleDelete} style={{ marginLeft: '10px' }}>削除</button>
-        <button onClick={() => navigate('/papers')} style={{ marginLeft: '10px' }}>一覧へ戻る</button>
+
+      {/* --- 論文のメモ --- */}
+      <div className='card mt-4'>
+        <div className='card-body'>
+          <h5 className='card-title'>メモ</h5>
+          <div className='card-text' style={{ whiteSpace: 'pre-wrap' }}>
+            {paper.memo || 'なし'}
+          </div>
+        </div>
       </div>
     </div>
   );
