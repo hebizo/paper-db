@@ -34,27 +34,31 @@ const PaperNewPage = () => {
       });
 
       if (response.ok) {
-        // case: success
-        // Redirect to the detail page of the newly created paper
-        console.log('Recoded new paper successfully');
         const data = await response.json();
         navigate(`/papers/${data.id}`);
       } else {
         const errorData = await response.json();
         setErrors(errorData.errors || {});
-        console.error('Failed recoding new paper', errorData);
+        console.error('Failed recording new paper', errorData);
       }
     } catch (error) {
       console.error('Error in API request', error);
+      setErrors({ base: ['通信エラーが発生しました'] });
     }
   };
 
   return (
-    <div>
-      <h2>論文を新規登録</h2>
+    <div className='container my-4'>
+      <div className='d-flex justify-content-between align-items-center mb-3'>
+        <h2 className='mb-0'>論文を新規登録</h2>
+      </div>
+
+      <hr />
+
+      {/* エラーメッセージ表示 */}
       {Object.keys(errors).length > 0 && (
-        <div style={{ color: 'red' }}>
-          <ul>
+        <div className="alert alert-danger">
+          <ul className="mb-0">
             {Object.entries(errors).map(([key, messages]) => (
               <li key={key}>
                 {key}: {messages.join(', ')}
@@ -63,53 +67,81 @@ const PaperNewPage = () => {
           </ul>
         </div>
       )}
+
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="title">タイトル (必須):</label>
-          <input
-            type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
+        {/* --- 論文のメタデータ入力 --- */}
+        <div className='mb-3'>
+          <div className='mb-3'>
+            <label htmlFor="title" className='form-label'><strong>タイトル (必須):</strong></label>
+            <input
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className='form-control form-control-lg'
+              placeholder='論文タイトル'
+              required
+            />
+          </div>
+          <div className='mb-3'>
+            <label htmlFor="authors" className='form-label'><strong>著者:</strong></label>
+            <input
+              type="text"
+              id="authors"
+              value={authorsInput}
+              onChange={(e) => setAuthorsInput(e.target.value)}
+              className='form-control'
+              placeholder='著者名をカンマ区切りで入力'
+            />
+          </div>
+          <div className='mb-3'>
+            <label htmlFor="url" className='form-label'><strong>URL:</strong></label>
+            <input
+              type="url"
+              id="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              className='form-control'
+              placeholder='論文のURL'
+            />
+          </div>
+          <div className='mb-3'>
+            <label htmlFor="tags" className='form-label'><strong>タグ:</strong></label>
+            <input
+              type="text"
+              id="tags"
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              className='form-control'
+              placeholder='タグをカンマ区切りで入力'
+            />
+          </div>
         </div>
-        <div>
-          <label htmlFor="url">URL:</label>
-          <input
-            type="url"
-            id="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
+
+        {/* --- 論文のメモ入力 --- */}
+        <div className='card mt-4'>
+          <div className='card-body'>
+            <h5 className='card-title'>メモ</h5>
+            <textarea
+              id="memo"
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              className='form-control'
+              rows="5"
+              placeholder='メモを入力（Markdown形式可）'
+            />
+          </div>
         </div>
-        <div>
-          <label htmlFor="authors">著者 (カンマ区切り):</label>
-          <input
-            type="text"
-            id="authors"
-            value={authorsInput}
-            onChange={(e) => setAuthorsInput(e.target.value)}
-          />
+
+        {/* --- ボタン --- */}
+        <div className='mt-4 d-flex justify-content-between'>
+          <button type="button" onClick={() => navigate('/papers')} className='btn btn-secondary'>
+            キャンセル
+          </button>
+          <button type="submit" className='btn btn-primary'>
+            登録する
+          </button>
         </div>
-        <div>
-          <label htmlFor="tags">タグ (カンマ区切り):</label>
-          <input
-            type="text"
-            id="tags"
-            value={tagsInput}
-            onChange={(e) => setTagsInput(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="memo">メモ (MD形式):</label>
-          <textarea
-            id="memo"
-            value={memo}
-            onChange={(e) => setMemo(e.target.value)}
-          ></textarea>
-        </div>
-        <button type="submit">登録する</button>
       </form>
     </div>
   );
