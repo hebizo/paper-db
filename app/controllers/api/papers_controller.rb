@@ -66,7 +66,9 @@ class Api::PapersController < ApplicationController
   end
 
   def destroy
-    
+    @paper = Paper.find(params[:id])
+    @paper.destroy
+    head :no_content
   end
 
   private

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function PaperDetailPage() {
   const { paperId } = useParams();
+  const navigate = useNavigate();
   const [paper, setPaper] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -75,6 +76,30 @@ function PaperDetailPage() {
       setEditMode(false);
     } catch (err) {
       console.error('update error:', err);
+      setError(err.message);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('本当に削除しますか？')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/papers/${paperId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('削除に失敗しました');
+      }
+
+      navigate('/papers');
+    } catch (err) {
+      console.error('delete error:', err);
       setError(err.message);
     }
   };
@@ -152,7 +177,10 @@ function PaperDetailPage() {
         <strong>メモ:</strong>
         <div style={{ whiteSpace: 'pre-wrap' }}>{paper.memo || 'なし'}</div>
       </div>
-      <button onClick={handleEditClick}>編集</button>
+      <div>
+        <button onClick={handleEditClick}>編集</button>
+        <button onClick={handleDelete} style={{ marginLeft: '10px'}}>削除</button>
+      </div>
     </div>
   );
 }
