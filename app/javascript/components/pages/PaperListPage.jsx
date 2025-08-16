@@ -1,10 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
+const cardHoverStyle = `
+  .paper-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    cursor: pointer;
+  }
+  .paper-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .card-link {
+    text-decoration: none;
+    color: inherit;
+  }
+`;
 
 function PaperListPage() {
   const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPapers = async () => {
@@ -32,15 +48,40 @@ function PaperListPage() {
   if (papers.length === 0) return <div>登録された論文はありません</div>;
 
   return (
-    <div>
-      <h2>論文一覧</h2>
-      <ul>
+    <div className='container my-4'>
+      <style>{cardHoverStyle}</style>
+      <div className='d-flex justify-content-between align-items-center mb-4'>
+        <h2 className='mb-0'>論文一覧</h2>
+        <button className='btn btn-primary d-flex align-items-center gap-2' onClick={() => navigate('/papers/new')}>
+          <span>+</span>
+          <span>新規登録</span>
+        </button>
+      </div>
+
+      {/* --- 論文カード一覧 --- */}
+      <div className='row g-4'>
         {papers.map(paper => (
-          <li key={paper.id}>
-            <Link to={`/papers/${paper.id}`}>{paper.title}</Link>
-          </li>
+          <div key={paper.id} className='col-lg-3 col-md-4 col-sm-6'>
+            <Link to={`/papers/${paper.id}`} className='card-link'>
+              <div className='card paper-card h-100'>
+                <div className='card-body d-flex justify-content-between align-items-start' style={{ minHeight: '8rem', maxHeight: '8rem' }}>
+                  <h5 
+                    className='card-title mb-0'
+                    style={{
+                      fontSize: '1rem',
+                      wordBreak: 'break-word',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {paper.title}
+                  </h5>
+                </div>
+              </div>
+            </Link>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
