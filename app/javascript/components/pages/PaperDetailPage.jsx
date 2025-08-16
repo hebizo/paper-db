@@ -177,9 +177,10 @@ function PaperDetailPage() {
         <strong>メモ:</strong>
         <div style={{ whiteSpace: 'pre-wrap' }}>{paper.memo || 'なし'}</div>
       </div>
-      <div>
+      <div style={{ marginTop: '20px' }}>
         <button onClick={handleEditClick}>編集</button>
-        <button onClick={handleDelete} style={{ marginLeft: '10px'}}>削除</button>
+        <button onClick={handleDelete} style={{ marginLeft: '10px' }}>削除</button>
+        <button onClick={() => navigate('/papers')} style={{ marginLeft: '10px' }}>一覧へ戻る</button>
       </div>
     </div>
   );
