@@ -156,31 +156,46 @@ function PaperDetailPage() {
     );
   }
   return (
-    <div>
-      <h2>{paper.title}</h2>
-      <div>
-        <strong>著者:</strong> {paper.authors && paper.authors.length > 0 
+    <div className='container my-4'>
+      <div className='d-flex justify-content-between align-items-center mb-3'>
+        <h2 className='mb-0'>{paper.title}</h2>
+        <div>
+          <button onClick={handleEditClick} className='btn btn-primary'>編集</button>
+          <button onClick={handleDelete} className='btn btn-danger mx-1'>削除</button>
+          <button onClick={() => navigate('/papers')} className='btn btn-secondary mx-2'>一覧へ戻る</button>
+        </div>
+      </div>
+
+      <hr />
+
+      {/* --- 論文のメタデータ --- */}
+      <div className='mb-3'>
+        <p>
+          <strong>著者:</strong> {paper.authors && paper.authors.length > 0 
           ? paper.authors.map(author => author.name).join(', ') 
           : 'なし'}
+        </p>
+        <p>
+          <strong>URL:</strong> {paper.url ? (
+            <a href={paper.url} target="_blank" rel="noopener noreferrer">{paper.url}</a>
+          ) : 'なし'}
+        </p>
+        <div>
+          <strong>タグ:</strong> {paper.tags && paper.tags.length > 0 
+          ? paper.tags.map(tag => (
+            <span key={tag.name} className='badge bg-secondary me-1'>{tag.name}</span>
+          )) : 'なし'}
+        </div>
       </div>
-      <div>
-        <strong>URL:</strong> {paper.url ? (
-          <a href={paper.url} target="_blank" rel="noopener noreferrer">{paper.url}</a>
-        ) : 'なし'}
-      </div>
-      <div>
-        <strong>タグ:</strong> {paper.tags && paper.tags.length > 0 
-          ? paper.tags.map(tag => tag.name).join(', ') 
-          : 'なし'}
-      </div>
-      <div>
-        <strong>メモ:</strong>
-        <div style={{ whiteSpace: 'pre-wrap' }}>{paper.memo || 'なし'}</div>
-      </div>
-      <div style={{ marginTop: '20px' }}>
-        <button onClick={handleEditClick}>編集</button>
-        <button onClick={handleDelete} style={{ marginLeft: '10px' }}>削除</button>
-        <button onClick={() => navigate('/papers')} style={{ marginLeft: '10px' }}>一覧へ戻る</button>
+
+      {/* --- 論文のメモ --- */}
+      <div className='card mt-4'>
+        <div className='card-body'>
+          <h5 className='card-title'>メモ</h5>
+          <div className='card-text' style={{ whiteSpace: 'pre-wrap' }}>
+            {paper.memo || 'なし'}
+          </div>
+        </div>
       </div>
     </div>
   );
