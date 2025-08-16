@@ -110,48 +110,72 @@ function PaperDetailPage() {
 
   if (editMode) {
     return (
-      <div>
-        <h2>
+      <div className='container my-4'>
+        <div className='d-flex justify-content-between align-items-center mb-3'>
           <input
             name="title"
             value={editPaper.title}
             onChange={handleChange}
+            className='form-control form-control-lg w-75'
+            placeholder='論文タイトル'
           />
-        </h2>
-        <div>
-          <strong>著者:</strong>
-          <input
-            name="authors"
-            value={editPaper.authors}
-            onChange={handleChange}
-          />
+          <div>
+            <button onClick={handleSave} className='btn btn-primary mx-1'>保存</button>
+            <button onClick={() => setEditMode(false)} className='btn btn-secondary'>キャンセル</button>
+          </div>
         </div>
-        <div>
-          <strong>URL:</strong>
-          <input
-            name="url"
-            value={editPaper.url}
-            onChange={handleChange}
-          />
+
+        <hr />
+
+        {/* --- 論文のメタデータ編集 --- */}
+        <div className='mb-3'>
+          <div className='mb-3'>
+            <label className='form-label'><strong>著者:</strong></label>
+            <input
+              name="authors"
+              value={editPaper.authors}
+              onChange={handleChange}
+              className='form-control'
+              placeholder='著者名をカンマ区切りで入力'
+            />
+          </div>
+          <div className='mb-3'>
+            <label className='form-label'><strong>URL:</strong></label>
+            <input
+              name="url"
+              value={editPaper.url}
+              onChange={handleChange}
+              className='form-control'
+              placeholder='論文のURL'
+              type="url"
+            />
+          </div>
+          <div className='mb-3'>
+            <label className='form-label'><strong>タグ:</strong></label>
+            <input
+              name="tags"
+              value={editPaper.tags}
+              onChange={handleChange}
+              className='form-control'
+              placeholder='タグをカンマ区切りで入力'
+            />
+          </div>
         </div>
-        <div>
-          <strong>タグ:</strong>
-          <input
-            name="tags"
-            value={editPaper.tags}
-            onChange={handleChange}
-          />
+
+        {/* --- 論文のメモ編集 --- */}
+        <div className='card mt-4'>
+          <div className='card-body'>
+            <h5 className='card-title'>メモ</h5>
+            <textarea
+              name="memo"
+              value={editPaper.memo}
+              onChange={handleChange}
+              className='form-control'
+              rows="5"
+              placeholder='メモを入力'
+            />
+          </div>
         </div>
-        <div>
-          <strong>メモ:</strong>
-          <textarea
-            name="memo"
-            value={editPaper.memo}
-            onChange={handleChange}
-          />
-        </div>
-        <button onClick={handleSave}>保存</button>
-        <button onClick={() => setEditMode(false)}>キャンセル</button>
       </div>
     );
   }
