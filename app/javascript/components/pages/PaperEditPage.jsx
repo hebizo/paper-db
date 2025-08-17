@@ -23,8 +23,8 @@ function PaperEditPage() {
         // 編集用のデータを初期化
         setEditPaper({
           ...data,
-          authors: data.authors ? data.authors.map(author => author.name).join(', ') : '',
-          tags: data.tags ? data.tags.map(tag => tag.name).join(', ') : ''
+          authors: data.authors ? data.authors.map(author => author?.name || '').filter(Boolean).join(', ') : '',
+          tags: data.tags ? data.tags.map(tag => tag?.name || '').filter(Boolean).join(', ') : ''
         });
       } catch (err) {
         console.error('fetch error:', err);
@@ -51,8 +51,8 @@ function PaperEditPage() {
         url: editPaper.url,
         memo: editPaper.memo,
       },
-      authors: editPaper.authors.split(/[,、]\s*/).map(name => ({ name: name.trim() })).filter(Boolean),
-      tags: editPaper.tags.split(/[,、]\s*/).map(name => ({ name: name.trim() })).filter(Boolean),
+      authors: editPaper.authors.split(/[,、]\s*/).filter(name => name.trim()).map(name => ({ name: name.trim() })).filter(Boolean),
+      tags: editPaper.tags.split(/[,、]\s*/).filter(name => name.trim()).map(name => ({ name: name.trim() })).filter(Boolean),
     };
 
     try {
