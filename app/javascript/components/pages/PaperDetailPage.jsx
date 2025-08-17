@@ -171,14 +171,14 @@ function PaperDetailPage() {
               name="memo"
               value={editPaper.memo}
               onChange={handleChange}
-              className='form-control'
-              rows="8"
+              className='form-control h-100'
               placeholder='Markdown形式でメモを入力'
+              style={{ minHeight: '180px' }}
             />
           </div>
           <div className='col-md-6 mb-3'>
             <h5 className='card-title'>プレビュー</h5>
-            <div className='card card-body' style={{ minHeight: '180px', background: '#f8f9fa' }}>
+            <div className='card card-body h-100' style={{ minHeight: '180px', background: '#f8f9fa' }}>
               <ReactMarkdown>{editPaper.memo || ''}</ReactMarkdown>
             </div>
           </div>
