@@ -8,8 +8,6 @@ function PaperDetailPage() {
   const [paper, setPaper] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editMode, setEditMode] = useState(false);
-  const [editPaper, setEditPaper] = useState(null);
 
   useEffect(() => {
     const fetchPaper = async () => {
@@ -19,85 +17,30 @@ function PaperDetailPage() {
           throw new Error('データの取得に失敗しました');
         }
         const data = await response.json();
-        console.log('data:', data); // オブジェクトのまま出力
         setPaper(data);
       } catch (err) {
-        console.error('fetch error:', err); // エラーも出力
+        console.error('fetch error:', err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
     fetchPaper();
-  }, [paperId]); 
-
-  const handleEditClick = () => {
-    setEditPaper({
-      ...paper,
-      authors: paper.authors ? paper.authors.map(author => author.name).join(', ') : '',
-      tags: paper.tags ? paper.tags.map(tag => tag.name).join(', ') : ''
-    });
-    setEditMode(true);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditPaper({
-      ...editPaper,
-      [name]: value
-    });
-  };
-
-  const handleSave = async () => {
-    const updatedData = {
-      paper: {
-        title: editPaper.title,
-        url: editPaper.url,
-        memo: editPaper.memo,
-      },
-      authors: editPaper.authors.split(/[,、]\s*/).map(name => ({ name: name.trim() })).filter(Boolean),
-      tags: editPaper.tags.split(/[,、]\s*/).map(name => ({ name: name.trim() })).filter(Boolean),
-    };
-
-    try {
-      const response = await fetch(`/api/papers/${paperId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!response.ok) {
-        throw new Error('更新に失敗しました');
-      }
-      const data = await response.json();
-      console.log('data:', data);
-      setPaper(data);
-      setEditMode(false);
-    } catch (err) {
-      console.error('update error:', err);
-      setError(err.message);
-    }
-  };
+  }, [paperId]);
 
   const handleDelete = async () => {
-    if (!window.confirm('本当に削除しますか？')) {
+    if (!window.confirm('この論文を削除してよろしいですか？')) {
       return;
     }
 
     try {
       const response = await fetch(`/api/papers/${paperId}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
       });
 
       if (!response.ok) {
         throw new Error('削除に失敗しました');
       }
-
       navigate('/papers');
     } catch (err) {
       console.error('delete error:', err);
@@ -109,97 +52,20 @@ function PaperDetailPage() {
   if (error) return <div style={{ color: 'red' }}>エラー: {error}</div>;
   if (!paper) return <div>データがありません</div>;
 
-  if (editMode) {
-    return (
-      <div className='container my-4'>
-        <div className='d-flex justify-content-between align-items-center mb-3'>
-          <input
-            name="title"
-            value={editPaper.title}
-            onChange={handleChange}
-            className='form-control form-control-lg w-75'
-            placeholder='論文タイトル'
-          />
-          <div>
-            <button onClick={handleSave} className='btn btn-primary mx-1'>保存</button>
-            <button onClick={() => setEditMode(false)} className='btn btn-secondary'>キャンセル</button>
-          </div>
-        </div>
-
-        <hr />
-
-        {/* --- 論文のメタデータ編集 --- */}
-        <div className='mb-3'>
-          <div className='mb-3'>
-            <label className='form-label'><strong>著者:</strong></label>
-            <input
-              name="authors"
-              value={editPaper.authors}
-              onChange={handleChange}
-              className='form-control'
-              placeholder='著者名をカンマ区切りで入力'
-            />
-          </div>
-          <div className='mb-3'>
-            <label className='form-label'><strong>URL:</strong></label>
-            <input
-              name="url"
-              value={editPaper.url}
-              onChange={handleChange}
-              className='form-control'
-              placeholder='論文のURL'
-              type="url"
-            />
-          </div>
-          <div className='mb-3'>
-            <label className='form-label'><strong>タグ:</strong></label>
-            <input
-              name="tags"
-              value={editPaper.tags}
-              onChange={handleChange}
-              className='form-control'
-              placeholder='タグをカンマ区切りで入力'
-            />
-          </div>
-        </div>
-
-        {/* --- 論文のメモ編集（Markdown対応） --- */}
-        <div className='row mt-4'>
-          <div className='col-md-6 mb-3'>
-            <h5 className='card-title'>メモ（Markdown）</h5>
-            <textarea
-              name="memo"
-              value={editPaper.memo}
-              onChange={handleChange}
-              className='form-control h-100'
-              placeholder='Markdown形式でメモを入力'
-              style={{ minHeight: '180px' }}
-            />
-          </div>
-          <div className='col-md-6 mb-3'>
-            <h5 className='card-title'>プレビュー</h5>
-            <div className='card card-body h-100' style={{ minHeight: '180px', background: '#f8f9fa' }}>
-              <ReactMarkdown>{editPaper.memo || ''}</ReactMarkdown>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
   return (
     <div className='container my-4'>
       <div className='d-flex justify-content-between align-items-center mb-3'>
-        <h2 className='mb-0'>{paper.title}</h2>
+        <h1>{paper.title}</h1>
         <div>
-          <button onClick={handleEditClick} className='btn btn-primary'>編集</button>
+          <button onClick={() => navigate(`/papers/${paperId}/edit`)} className='btn btn-primary'>編集</button>
           <button onClick={handleDelete} className='btn btn-danger mx-1'>削除</button>
-          <button onClick={() => navigate('/papers')} className='btn btn-secondary mx-2'>一覧へ戻る</button>
+          <button onClick={() => navigate('/papers')} className='btn btn-secondary mx-1'>一覧に戻る</button>
         </div>
       </div>
 
       <hr />
 
-      {/* --- 論文のメタデータ --- */}
+      {/* --- 論文のメタデータ表示 --- */}
       <div className='mb-3'>
         <p>
           <strong>著者:</strong> {paper.authors && paper.authors.length > 0 
@@ -219,12 +85,12 @@ function PaperDetailPage() {
         </div>
       </div>
 
-      {/* --- 論文のメモ --- */}
+      {/* --- 論文のメモ表示（Markdown対応） --- */}
       <div className='card mt-4'>
         <div className='card-body'>
           <h5 className='card-title'>メモ</h5>
-          <div className='card-text' style={{ whiteSpace: 'pre-wrap' }}>
-            <ReactMarkdown>{paper.memo || 'なし'}</ReactMarkdown>
+          <div className='markdown-body'>
+            <ReactMarkdown>{paper.memo || ''}</ReactMarkdown>
           </div>
         </div>
       </div>
