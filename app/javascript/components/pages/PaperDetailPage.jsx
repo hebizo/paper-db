@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 
 function PaperDetailPage() {
   const { paperId } = useParams();
@@ -162,18 +163,24 @@ function PaperDetailPage() {
           </div>
         </div>
 
-        {/* --- 論文のメモ編集 --- */}
-        <div className='card mt-4'>
-          <div className='card-body'>
-            <h5 className='card-title'>メモ</h5>
+        {/* --- 論文のメモ編集（Markdown対応） --- */}
+        <div className='row mt-4'>
+          <div className='col-md-6 mb-3'>
+            <h5 className='card-title'>メモ（Markdown）</h5>
             <textarea
               name="memo"
               value={editPaper.memo}
               onChange={handleChange}
-              className='form-control'
-              rows="5"
-              placeholder='メモを入力'
+              className='form-control h-100'
+              placeholder='Markdown形式でメモを入力'
+              style={{ minHeight: '180px' }}
             />
+          </div>
+          <div className='col-md-6 mb-3'>
+            <h5 className='card-title'>プレビュー</h5>
+            <div className='card card-body h-100' style={{ minHeight: '180px', background: '#f8f9fa' }}>
+              <ReactMarkdown>{editPaper.memo || ''}</ReactMarkdown>
+            </div>
           </div>
         </div>
       </div>
@@ -217,7 +224,7 @@ function PaperDetailPage() {
         <div className='card-body'>
           <h5 className='card-title'>メモ</h5>
           <div className='card-text' style={{ whiteSpace: 'pre-wrap' }}>
-            {paper.memo || 'なし'}
+            <ReactMarkdown>{paper.memo || 'なし'}</ReactMarkdown>
           </div>
         </div>
       </div>
