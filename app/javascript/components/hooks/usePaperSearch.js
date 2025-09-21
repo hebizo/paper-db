@@ -11,7 +11,7 @@ export function usePaperSearch(papers) {
 
     const tokens = trimmedQuery.split(/\s+/).filter(Boolean);
     const tagFilters = [];
-    const textTokens = [];
+    const textFilters = [];
 
     tokens.forEach((token) => {
       if (token.startsWith('#') && token.length > 1) {
@@ -20,11 +20,9 @@ export function usePaperSearch(papers) {
           tagFilters.push(tagName);
         }
       } else {
-        textTokens.push(token);
+        textFilters.push(token);
       }
     });
-
-    const textQuery = textTokens.join(' ').trim();
 
     return papers.filter((paper) => {
       if (tagFilters.length > 0) {
@@ -38,11 +36,14 @@ export function usePaperSearch(papers) {
         }
       }
 
-      if (textQuery) {
+      if (textFilters.length > 0) {
         const title = paper.title ?? '';
         const memo = paper.memo ?? '';
-        const matchesText = (typeof title === 'string' && title.includes(textQuery))
-          || (typeof memo === 'string' && memo.includes(textQuery));
+        const matchesText = textFilters.some((textFilter) => {
+          const matchesTitle = typeof title === 'string' && title.includes(textFilter);
+          const matchesMemo = typeof memo === 'string' && memo.includes(textFilter);
+          return matchesTitle || matchesMemo;
+        });
 
         if (!matchesText) {
           return false;
