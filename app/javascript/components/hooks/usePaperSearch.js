@@ -1,22 +1,49 @@
 import { useMemo, useState } from 'react';
 
-function normalise(value) {
-  return value?.toLowerCase() ?? '';
-}
-
 export function usePaperSearch(papers) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredPapers = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) {
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) {
       return papers;
     }
 
+    const tokens = trimmedQuery.split(/\s+/).filter(Boolean);
+    let tagFilter = null;
+    const textTokens = [];
+
+    tokens.forEach((token) => {
+      if (token.startsWith('#') && token.length > 1 && tagFilter === null) {
+        tagFilter = token.slice(1);
+      } else {
+        textTokens.push(token);
+      }
+    });
+
+    const textQuery = textTokens.join(' ').trim();
+
     return papers.filter((paper) => {
-      const title = normalise(paper.title);
-      const memo = normalise(paper.memo);
-      return title.includes(query) || memo.includes(query);
+      if (tagFilter) {
+        const tagList = Array.isArray(paper.tags) ? paper.tags : [];
+        const hasTag = tagList.some((tag) => tag?.name === tagFilter);
+        if (!hasTag) {
+          return false;
+        }
+      }
+
+      if (textQuery) {
+        const title = paper.title ?? '';
+        const memo = paper.memo ?? '';
+        const matchesText = (typeof title === 'string' && title.includes(textQuery))
+          || (typeof memo === 'string' && memo.includes(textQuery));
+
+        if (!matchesText) {
+          return false;
+        }
+      }
+
+      return true;
     });
   }, [papers, searchQuery]);
 
