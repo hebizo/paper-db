@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import usePaperSearch from '../hooks/usePaperSearch';
 
 const cardHoverStyle = `
   .paper-card {
@@ -20,7 +21,6 @@ function PaperListPage() {
   const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,16 +44,7 @@ function PaperListPage() {
     fetchPapers();
   }, []);
 
-  const filteredPapers = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return papers;
-    return papers.filter(paper => {
-      const title = paper.title?.toLowerCase() ?? '';
-      const memo = paper.memo?.toLowerCase() ?? '';
-      console.log('title:', title, 'memo:', memo, 'query:', query);
-      return title.includes(query) || memo.includes(query);
-    });
-  }, [papers, searchQuery]);
+  const { searchQuery, setSearchQuery, filteredPapers } = usePaperSearch(papers);
 
   if (loading) return <div>読み込み中...</div>;
   if (error) return <div style={{ color: 'red' }}>エラー: {error}</div>;
