@@ -10,12 +10,15 @@ export function usePaperSearch(papers) {
     }
 
     const tokens = trimmedQuery.split(/\s+/).filter(Boolean);
-    let tagFilter = null;
+    const tagFilters = [];
     const textTokens = [];
 
     tokens.forEach((token) => {
-      if (token.startsWith('#') && token.length > 1 && tagFilter === null) {
-        tagFilter = token.slice(1);
+      if (token.startsWith('#') && token.length > 1) {
+        const tagName = token.slice(1);
+        if (!tagFilters.includes(tagName)) {
+          tagFilters.push(tagName);
+        }
       } else {
         textTokens.push(token);
       }
@@ -24,10 +27,13 @@ export function usePaperSearch(papers) {
     const textQuery = textTokens.join(' ').trim();
 
     return papers.filter((paper) => {
-      if (tagFilter) {
+      if (tagFilters.length > 0) {
         const tagList = Array.isArray(paper.tags) ? paper.tags : [];
-        const hasTag = tagList.some((tag) => tag?.name === tagFilter);
-        if (!hasTag) {
+        const tagNames = tagList
+          .map((tag) => (tag ? tag.name : null))
+          .filter((name) => typeof name === 'string');
+        const hasAllTags = tagFilters.every((tagFilter) => tagNames.includes(tagFilter));
+        if (!hasAllTags) {
           return false;
         }
       }
