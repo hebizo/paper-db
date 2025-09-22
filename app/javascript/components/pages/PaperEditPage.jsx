@@ -1,16 +1,47 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
+
+const extractErrorMessage = (payload) => {
+  if (!payload) {
+    return '';
+  }
+  if (Array.isArray(payload)) {
+    return payload.join(', ');
+  }
+  if (typeof payload === 'object') {
+    const source = payload.errors && typeof payload.errors === 'object' ? payload.errors : payload;
+    return Object.values(source)
+      .flatMap((value) => {
+        if (Array.isArray(value)) {
+          return value;
+        }
+        if (value && typeof value === 'object') {
+          return Object.values(value);
+        }
+        return [String(value)];
+      })
+      .filter(Boolean)
+      .join(', ');
+  }
+  return String(payload);
+};
 
 function PaperEditPage() {
   const { paperId } = useParams();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
   const [paper, setPaper] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editPaper, setEditPaper] = useState(null);
+  const [pdfFile, setPdfFile] = useState(null);
+  const [pdfName, setPdfName] = useState('');
+  const [pdfError, setPdfError] = useState(null);
+  const [isDragActive, setIsDragActive] = useState(false);
 
-  // 論文データの取得
   useEffect(() => {
     const fetchPaper = async () => {
       try {
@@ -20,12 +51,14 @@ function PaperEditPage() {
         }
         const data = await response.json();
         setPaper(data);
-        // 編集用のデータを初期化
         setEditPaper({
           ...data,
           authors: data.authors ? data.authors.map(author => author?.name || '').filter(Boolean).join(', ') : '',
           tags: data.tags ? data.tags.map(tag => tag?.name || '').filter(Boolean).join(', ') : ''
         });
+        setPdfFile(null);
+        setPdfName(data.pdf?.filename || '');
+        setPdfError(null);
       } catch (err) {
         console.error('fetch error:', err);
         setError(err.message);
@@ -44,31 +77,98 @@ function PaperEditPage() {
     });
   };
 
+  const handleFileSelection = (file) => {
+    if (!file) return;
+
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) {
+      setPdfError('PDFファイルのみアップロードできます');
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setPdfError('ファイルは100MB以下にしてください');
+      return;
+    }
+
+    setPdfError(null);
+    setPdfFile(file);
+    setPdfName(file.name);
+  };
+
+  const handleFileInputChange = (event) => {
+    const file = event.target.files && event.target.files[0];
+    handleFileSelection(file);
+    if (event.target) {
+      event.target.value = '';
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragActive(false);
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragActive(false);
+
+    const file = event.dataTransfer?.files && event.dataTransfer.files[0];
+    handleFileSelection(file);
+  };
+
   const handleSave = async () => {
-    const updatedData = {
-      paper: {
-        title: editPaper.title,
-        url: editPaper.url,
-        memo: editPaper.memo,
-      },
-      authors: editPaper.authors.split(/[,、]\s*/).filter(name => name.trim()).map(name => ({ name: name.trim() })).filter(Boolean),
-      tags: editPaper.tags.split(/[,、]\s*/).filter(name => name.trim()).map(name => ({ name: name.trim() })).filter(Boolean),
-    };
+    if (!editPaper) return;
+    if (pdfError) {
+      setError(pdfError);
+      return;
+    }
+
+    setError(null);
+
+    const authorsArray = editPaper.authors
+      ? editPaper.authors.split(/[,、]\s*/).map(name => name.trim()).filter(Boolean)
+      : [];
+    const tagsArray = editPaper.tags
+      ? editPaper.tags.split(/[,、]\s*/).map(name => name.trim()).filter(Boolean)
+      : [];
+
+    const formData = new FormData();
+    formData.append('paper[title]', editPaper.title || '');
+    formData.append('paper[url]', editPaper.url || '');
+    formData.append('paper[memo]', editPaper.memo || '');
+
+    authorsArray.forEach((name, index) => {
+      formData.append(`authors[${index}][name]`, name);
+    });
+    tagsArray.forEach((name, index) => {
+      formData.append(`tags[${index}][name]`, name);
+    });
+
+    if (pdfFile) {
+      formData.append('pdf_file', pdfFile);
+    }
 
     try {
       const response = await fetch(`/api/papers/${paperId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedData),
+        body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('更新に失敗しました');
+        const errorData = await response.json().catch(() => null);
+        const message = extractErrorMessage(errorData) || '更新に失敗しました';
+        throw new Error(message);
       }
-      
-      // 保存成功後、詳細画面に戻る
+
       navigate(`/papers/${paperId}`);
     } catch (err) {
       console.error('update error:', err);
@@ -98,7 +198,6 @@ function PaperEditPage() {
 
       <hr />
 
-      {/* --- 論文のメタデータ編集 --- */}
       <div className='mb-3'>
         <div className='mb-3'>
           <label className='form-label'><strong>著者:</strong></label>
@@ -131,9 +230,49 @@ function PaperEditPage() {
             placeholder='タグをカンマ区切りで入力'
           />
         </div>
+        <div className='mb-3'>
+          <label className='form-label d-block'><strong>PDF:</strong></label>
+          {pdfName && (
+            <div className='mb-2 text-muted small'>
+              {pdfFile ? '選択中のファイル: ' : '保存済みのファイル: '}
+              {pdfName}
+            </div>
+          )}
+          <div
+            className={`border rounded p-4 text-center ${isDragActive ? 'bg-light border-primary' : 'bg-white'}`}
+            onDragEnter={handleDragOver}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            role='button'
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                if (fileInputRef.current) fileInputRef.current.click();
+              }
+            }}
+          >
+            <p className='mb-3'>ここにPDFファイルをドラッグ&ドロップ</p>
+            <button
+              type='button'
+              className='btn btn-outline-primary'
+              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+            >
+              ファイルを選択
+            </button>
+            <input
+              type='file'
+              accept='application/pdf'
+              ref={fileInputRef}
+              className='d-none'
+              onChange={handleFileInputChange}
+            />
+          </div>
+          {pdfError && <div className='text-danger small mt-2'>{pdfError}</div>}
+        </div>
       </div>
 
-      {/* --- 論文のメモ編集（Markdown対応） --- */}
       <div className='row mt-4'>
         <div className='col-md-6 mb-3'>
           <h5 className='card-title'>メモ（Markdown）</h5>
