@@ -64,7 +64,7 @@ export function usePaperSearch(papers) {
       if (textFilters.length > 0) {
         const title = paper.title ?? '';
         const memo = paper.memo ?? '';
-        const matchesText = textFilters.some((textFilter) => {
+        const matchesText = textFilters.every((textFilter) => {
           const matchesTitle = typeof title === 'string' && title.includes(textFilter);
           const matchesMemo = typeof memo === 'string' && memo.includes(textFilter);
           return matchesTitle || matchesMemo;
