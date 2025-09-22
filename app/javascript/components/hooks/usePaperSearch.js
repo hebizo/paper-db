@@ -1,7 +1,32 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
+const STORAGE_KEY = 'paperSearchQuery';
 
 export function usePaperSearch(papers) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => {
+    if (typeof window === 'undefined') {
+      return '';
+    }
+
+    try {
+      return window.localStorage.getItem(STORAGE_KEY) ?? '';
+    } catch (err) {
+      console.warn('Failed to read stored search query', err);
+      return '';
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(STORAGE_KEY, searchQuery);
+    } catch (err) {
+      console.warn('Failed to persist search query', err);
+    }
+  }, [searchQuery]);
 
   const filteredPapers = useMemo(() => {
     const trimmedQuery = searchQuery.trim();
