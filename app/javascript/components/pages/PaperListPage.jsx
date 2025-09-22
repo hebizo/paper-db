@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import usePaperSearch from '../hooks/usePaperSearch';
 
 const cardHoverStyle = `
   .paper-card {
@@ -43,6 +44,8 @@ function PaperListPage() {
     fetchPapers();
   }, []);
 
+  const { searchQuery, setSearchQuery, filteredPapers } = usePaperSearch(papers);
+
   if (loading) return <div>読み込み中...</div>;
   if (error) return <div style={{ color: 'red' }}>エラー: {error}</div>;
   if (papers.length === 0) return <div>登録された論文はありません</div>;
@@ -50,7 +53,7 @@ function PaperListPage() {
   return (
     <div className='container my-4'>
       <style>{cardHoverStyle}</style>
-      <div className='d-flex justify-content-between align-items-center mb-4'>
+      <div className='d-flex justify-content-between align-items-center mb-3'>
         <h2 className='mb-0'>論文一覧</h2>
         <button className='btn btn-primary d-flex align-items-center gap-2' onClick={() => navigate('/papers/new')}>
           <span>+</span>
@@ -58,30 +61,44 @@ function PaperListPage() {
         </button>
       </div>
 
-      {/* --- 論文カード一覧 --- */}
-      <div className='row g-4'>
-        {papers.map(paper => (
-          <div key={paper.id} className='col-lg-3 col-md-4 col-sm-6'>
-            <Link to={`/papers/${paper.id}`} className='card-link'>
-              <div className='card paper-card h-100'>
-                <div className='card-body d-flex justify-content-between align-items-start' style={{ minHeight: '8rem', maxHeight: '8rem' }}>
-                  <h5 
-                    className='card-title mb-0'
-                    style={{
-                      fontSize: '1rem',
-                      wordBreak: 'break-word',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {paper.title}
-                  </h5>
-                </div>
-              </div>
-            </Link>
-          </div>
-        ))}
+      <div className='mb-4'>
+        <input
+          type='search'
+          className='form-control'
+          placeholder='検索'
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+        />
       </div>
+
+      {/* --- 論文カード一覧 --- */}
+      {filteredPapers.length === 0 ? (
+        <div>条件に一致する論文は見つかりませんでした</div>
+      ) : (
+        <div className='row g-4'>
+          {filteredPapers.map(paper => (
+            <div key={paper.id} className='col-lg-3 col-md-4 col-sm-6'>
+              <Link to={`/papers/${paper.id}`} className='card-link'>
+                <div className='card paper-card h-100'>
+                  <div className='card-body d-flex justify-content-between align-items-start' style={{ minHeight: '8rem', maxHeight: '8rem' }}>
+                    <h5
+                      className='card-title mb-0'
+                      style={{
+                        fontSize: '1rem',
+                        wordBreak: 'break-word',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {paper.title}
+                    </h5>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

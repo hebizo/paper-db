@@ -3,7 +3,7 @@ class Api::PapersController < ApplicationController
 
   def index
     @papers = Paper.all
-    render json: @papers.as_json(only: [:id, :title])
+    render json: @papers.as_json(only: [:id, :title, :memo], include: { authors: { only: :name }, tags: { only: :name } })
   end
 
   def create
