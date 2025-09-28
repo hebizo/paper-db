@@ -113,6 +113,13 @@ class Api::PapersController < ApplicationController
   end
 
   def handle_pdf_upload(paper)
+    remove_requested = ActiveModel::Type::Boolean.new.cast(params[:remove_pdf])
+
+    if remove_requested && paper.paper_document
+      paper.paper_document.destroy
+      paper.association(:paper_document).reset
+    end
+
     uploaded_file = params[:pdf_file]
     return true unless uploaded_file
 

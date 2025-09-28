@@ -66,6 +66,15 @@ const PaperNewPage = () => {
     handleFileSelection(file);
   };
 
+  const handleRemovePdf = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setPdfFile(null);
+    setPdfName('');
+    setPdfError(null);
+  };
+
   const normalizeErrors = (data) => {
     if (!data || typeof data !== 'object') {
       return { base: ['不明なエラーが発生しました'] };
@@ -196,7 +205,17 @@ const PaperNewPage = () => {
           <div className='mb-3'>
             <label className='form-label d-block'><strong>PDF:</strong></label>
             {pdfName && (
-              <div className='mb-2 text-muted small'>選択中のファイル: {pdfName}</div>
+              <div className='mb-2 text-muted small d-flex align-items-center'>
+                <span>選択中のファイル: {pdfName}</span>
+                <button
+                  type='button'
+                  className='btn btn-link btn-sm text-danger p-0 ms-2'
+                  onClick={handleRemovePdf}
+                  aria-label='PDFを削除'
+                >
+                  &times;
+                </button>
+              </div>
             )}
             <div
               className={`border rounded p-4 text-center ${isDragActive ? 'bg-light border-primary' : 'bg-white'}`}

@@ -40,6 +40,7 @@ function PaperEditPage() {
   const [pdfFile, setPdfFile] = useState(null);
   const [pdfName, setPdfName] = useState('');
   const [pdfError, setPdfError] = useState(null);
+  const [removeExistingPdf, setRemoveExistingPdf] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
 
   useEffect(() => {
@@ -59,6 +60,7 @@ function PaperEditPage() {
         setPdfFile(null);
         setPdfName(data.pdf?.filename || '');
         setPdfError(null);
+        setRemoveExistingPdf(false);
       } catch (err) {
         console.error('fetch error:', err);
         setError(err.message);
@@ -102,6 +104,29 @@ function PaperEditPage() {
     if (event.target) {
       event.target.value = '';
     }
+  };
+
+  const handleRemovePdf = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setPdfError(null);
+
+    if (pdfFile) {
+      setPdfFile(null);
+      setPdfName(removeExistingPdf ? '' : (paper?.pdf?.filename || ''));
+      return;
+    }
+
+    if (paper?.pdf && !removeExistingPdf) {
+      setPdfFile(null);
+      setPdfName('');
+      setRemoveExistingPdf(true);
+      return;
+    }
+
+    setPdfFile(null);
+    setPdfName('');
   };
 
   const handleDragOver = (event) => {
@@ -155,6 +180,10 @@ function PaperEditPage() {
 
     if (pdfFile) {
       formData.append('pdf_file', pdfFile);
+    }
+
+    if (removeExistingPdf) {
+      formData.append('remove_pdf', '1');
     }
 
     try {
@@ -233,9 +262,19 @@ function PaperEditPage() {
         <div className='mb-3'>
           <label className='form-label d-block'><strong>PDF:</strong></label>
           {pdfName && (
-            <div className='mb-2 text-muted small'>
-              {pdfFile ? '選択中のファイル: ' : '保存済みのファイル: '}
-              {pdfName}
+            <div className='mb-2 text-muted small d-flex align-items-center'>
+              <span>
+                {pdfFile ? '選択中のファイル: ' : '保存済みのファイル: '}
+                {pdfName}
+              </span>
+              <button
+                type='button'
+                className='btn btn-link btn-sm text-danger p-0 ms-2'
+                onClick={handleRemovePdf}
+                aria-label='PDFを削除'
+              >
+                &times;
+              </button>
             </div>
           )}
           <div
