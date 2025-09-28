@@ -88,8 +88,6 @@ function PaperDetailPage() {
         {paper.pdf ? (
           <a
             href={paper.pdf.url}
-            target="_blank"
-            rel="noopener noreferrer"
             className='btn btn-primary btn-sm'
           >
             PDFを開く
