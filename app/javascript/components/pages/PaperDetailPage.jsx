@@ -84,16 +84,20 @@ function PaperDetailPage() {
           )) : 'なし'}
         </div>
       </div>
-      <div className='d-flex align-items-center justify-content-between flex-wrap mb-3'>
-        {paper.pdf && (
+      <div className='d-flex align-items-center mb-3'>
+        {paper.pdf ? (
           <a
             href={paper.pdf.url}
             target="_blank"
             rel="noopener noreferrer"
             className='btn btn-primary btn-sm'
           >
-            PDFを閲覧
+            PDFを開く
           </a>
+        ) : (
+          <button type='button' className='btn btn-secondary btn-sm' disabled aria-disabled='true'>
+            PDFを開く
+          </button>
         )}
       </div>
 
