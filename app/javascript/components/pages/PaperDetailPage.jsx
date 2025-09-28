@@ -84,6 +84,20 @@ function PaperDetailPage() {
           )) : 'なし'}
         </div>
       </div>
+      <div className='d-flex align-items-center mb-3'>
+        {paper.pdf ? (
+          <a
+            href={paper.pdf.url}
+            className='btn btn-primary btn-sm'
+          >
+            PDFを開く
+          </a>
+        ) : (
+          <button type='button' className='btn btn-secondary btn-sm' disabled aria-disabled='true'>
+            PDFを開く
+          </button>
+        )}
+      </div>
 
       {/* --- 論文のメモ表示（Markdown対応） --- */}
       <div className='card mt-4'>
