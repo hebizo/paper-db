@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
@@ -252,17 +253,23 @@ const PaperNewPage = () => {
           </div>
         </div>
 
-        <div className='card mt-4'>
-          <div className='card-body'>
-            <h5 className='card-title'>メモ</h5>
+        <div className='row mt-4'>
+          <div className='col-md-6 mb-3'>
+            <h5 className='card-title'>メモ（Markdown）</h5>
             <textarea
               id='memo'
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
-              className='form-control'
-              rows='5'
+              className='form-control h-100'
               placeholder='メモを入力（Markdown形式可）'
+              style={{ minHeight: '180px' }}
             />
+          </div>
+          <div className='col-md-6 mb-3'>
+            <h5 className='card-title'>プレビュー</h5>
+            <div className='card card-body h-100' style={{ minHeight: '180px', background: '#f8f9fa' }}>
+              <ReactMarkdown>{memo || ''}</ReactMarkdown>
+            </div>
           </div>
         </div>
 
