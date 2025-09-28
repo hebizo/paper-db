@@ -1,6 +1,5 @@
-// Entry point for the build script in your package.json
-import "@hotwired/turbo-rails"
-import "./controllers"
+// Legacy Rails asset entrypoint remains for jsbundling-rails compatibility.
+// Hotwire は利用しないため、関連するインポートは削除しています。
 
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
