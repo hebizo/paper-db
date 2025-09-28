@@ -77,17 +77,24 @@ function PaperDetailPage() {
             <a href={paper.url} target="_blank" rel="noopener noreferrer">{paper.url}</a>
           ) : 'なし'}
         </p>
-        <p>
-          <strong>PDF:</strong> {paper.pdf ? (
-            <a href={paper.pdf.url} target="_blank" rel="noopener noreferrer">{paper.pdf.filename}</a>
-          ) : 'なし'}
-        </p>
         <div>
           <strong>タグ:</strong> {paper.tags && paper.tags.length > 0 
           ? paper.tags.map(tag => (
             <span key={tag.name} className='badge bg-secondary me-1'>{tag.name}</span>
           )) : 'なし'}
         </div>
+      </div>
+      <div className='d-flex align-items-center justify-content-between flex-wrap mb-3'>
+        {paper.pdf && (
+          <a
+            href={paper.pdf.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className='btn btn-primary btn-sm'
+          >
+            PDFを閲覧
+          </a>
+        )}
       </div>
 
       {/* --- 論文のメモ表示（Markdown対応） --- */}
