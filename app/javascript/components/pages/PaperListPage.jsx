@@ -88,6 +88,9 @@ function PaperListPage() {
                         wordBreak: 'break-word',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitBoxOrient: 'vertical',
+                        WebkitLineClamp: 2,
                       }}
                     >
                       {paper.title}
