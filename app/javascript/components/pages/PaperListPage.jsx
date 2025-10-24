@@ -15,6 +15,29 @@ const cardHoverStyle = `
     text-decoration: none;
     color: inherit;
   }
+  .paper-tag-container {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .paper-tag {
+    background-color: #6c757d;
+    color: #ffffff;
+    border-radius: 9999px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    min-width: 0;
+  }
+  .paper-tag--single {
+    max-width: 100%;
+  }
+  .paper-tag--double {
+    max-width: calc(50% - 0.25rem);
+  }
 `;
 
 function PaperListPage() {
@@ -76,30 +99,62 @@ function PaperListPage() {
         <div>条件に一致する論文は見つかりませんでした</div>
       ) : (
         <div className='row g-4'>
-          {filteredPapers.map(paper => (
-            <div key={paper.id} className='col-lg-3 col-md-4 col-sm-6'>
-              <Link to={`/papers/${paper.id}`} className='card-link'>
-                <div className='card paper-card h-100'>
-                  <div className='card-body d-flex justify-content-between align-items-start' style={{ minHeight: '8rem', maxHeight: '8rem' }}>
-                    <h5
-                      className='card-title mb-0'
-                      style={{
-                        fontSize: '1rem',
-                        wordBreak: 'break-word',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitBoxOrient: 'vertical',
-                        WebkitLineClamp: 2,
-                      }}
+          {filteredPapers.map(paper => {
+            const displayedTags = Array.isArray(paper.tags) ? paper.tags.slice(0, 2) : [];
+            const hasTags = displayedTags.length > 0;
+            return (
+              <div key={paper.id} className='col-lg-3 col-md-4 col-sm-6'>
+                <Link to={`/papers/${paper.id}`} className='card-link'>
+                  <div className='card paper-card h-100'>
+                    <div
+                      className='card-body d-flex flex-column align-items-start'
+                      style={{ minHeight: '8rem', maxHeight: '8rem' }}
                     >
-                      {paper.title}
-                    </h5>
+                      <h5
+                        className='card-title mb-0'
+                        style={{
+                          fontSize: '1rem',
+                          wordBreak: 'break-word',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitBoxOrient: 'vertical',
+                          WebkitLineClamp: 2,
+                        }}
+                      >
+                        {paper.title}
+                      </h5>
+                      {hasTags && (
+                        <div
+                          className='paper-tag-container'
+                          style={{ marginTop: 'auto', paddingTop: '0.75rem' }}
+                        >
+                          {displayedTags.map((tag, index) => {
+                            const tagLabel = typeof tag === 'string' ? tag : tag?.name || '';
+                            if (!tagLabel) return null;
+                            const key = typeof tag === 'object' && tag !== null && 'id' in tag
+                              ? `tag-${tag.id}`
+                              : `tag-${tagLabel}-${index}`;
+                            return (
+                              <span
+                                key={key}
+                                className={`paper-tag ${
+                                  displayedTags.length === 1 ? 'paper-tag--single' : 'paper-tag--double'
+                                }`}
+                                title={tagLabel}
+                              >
+                                {tagLabel}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </div>
-          ))}
+                </Link>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
