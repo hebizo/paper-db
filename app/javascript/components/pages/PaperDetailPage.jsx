@@ -54,12 +54,12 @@ function PaperDetailPage() {
 
   return (
     <div className='container my-4'>
-      <div className='d-flex justify-content-between align-items-center mb-3'>
-        <h1>{paper.title}</h1>
-        <div>
-          <button onClick={() => navigate(`/papers/${paperId}/edit`)} className='btn btn-primary'>編集</button>
-          <button onClick={handleDelete} className='btn btn-danger mx-1'>削除</button>
-          <button onClick={() => navigate('/papers')} className='btn btn-secondary mx-1'>一覧に戻る</button>
+      <div className='d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3'>
+        <h1 className='flex-grow-1 mb-0'>{paper.title}</h1>
+        <div className='d-flex align-items-center gap-2 flex-shrink-0'>
+          <button onClick={() => navigate(`/papers/${paperId}/edit`)} className='btn btn-primary text-nowrap'>編集</button>
+          <button onClick={handleDelete} className='btn btn-danger text-nowrap'>削除</button>
+          <button onClick={() => navigate('/papers')} className='btn btn-secondary text-nowrap'>一覧に戻る</button>
         </div>
       </div>
 
