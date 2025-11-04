@@ -17,5 +17,5 @@ Paper DB は、研究論文や技術資料を一元管理するための Rails +
 
 ## 開発サーバーの起動
 - `bin/dev`
-  - `bin/dev` は Foreman を利用して Rails サーバー (`bin/rails server`) と Vite 開発サーバー (`bin/vite dev`) を並列起動します ([`bin/dev`](bin/dev), [`Procfile.dev`](Procfile.dev))
+  - Rails サーバー (`bin/rails server`) と Vite 開発サーバー (`bin/vite dev`) を並列起動します ([`bin/dev`](bin/dev), [`Procfile.dev`](Procfile.dev))
 - 既定では http://localhost:3000 でアプリケーションにアクセスできます
