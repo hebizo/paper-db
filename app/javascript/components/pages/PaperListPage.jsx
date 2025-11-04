@@ -2,6 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import usePaperSearch from '../hooks/usePaperSearch';
 
+const getTagLabel = (tag) => {
+  if (typeof tag === 'string') return tag;
+  if (tag && typeof tag === 'object' && 'name' in tag) return `${tag.name}`;
+  return '';
+};
+
+const getTagKey = (tag, index) => {
+  if (tag && typeof tag === 'object') {
+    if ('id' in tag) return `tag-${tag.id}`;
+    if ('name' in tag) return `tag-${tag.name}-${index}`;
+  }
+  const label = getTagLabel(tag);
+  return label ? `tag-${label}-${index}` : `tag-${index}`;
+};
+
 const cardHoverStyle = `
   .paper-card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -117,6 +132,7 @@ function PaperListPage() {
                           wordBreak: 'break-word',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
+                          /* WebKit系プロパティで主要ブラウザの2行省略に対応する */
                           display: '-webkit-box',
                           WebkitBoxOrient: 'vertical',
                           WebkitLineClamp: 2,
@@ -130,11 +146,9 @@ function PaperListPage() {
                           style={{ marginTop: 'auto', paddingTop: '0.75rem' }}
                         >
                           {displayedTags.map((tag, index) => {
-                            const tagLabel = typeof tag === 'string' ? tag : tag?.name || '';
+                            const tagLabel = getTagLabel(tag);
                             if (!tagLabel) return null;
-                            const key = typeof tag === 'object' && tag !== null && 'id' in tag
-                              ? `tag-${tag.id}`
-                              : `tag-${tagLabel}-${index}`;
+                            const key = getTagKey(tag, index);
                             return (
                               <span
                                 key={key}
